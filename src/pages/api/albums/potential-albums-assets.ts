@@ -32,7 +32,7 @@ const SELECT_ORPHAN_PHOTOS = (date: string, ownerId:  string) =>
       asset_exif e 
       ON a.id = e."assetId"
   WHERE 
-      aaa."albumsId" IS NULL 
+      aaa."albumId" IS NULL 
       AND a."ownerId" = '${ownerId}'
       AND e."dateTimeOriginal"::date = '${date}'
       AND a."visibility" = 'timeline'
