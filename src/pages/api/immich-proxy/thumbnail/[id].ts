@@ -35,6 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('People thumbnail error:', response.status, errorText);
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 

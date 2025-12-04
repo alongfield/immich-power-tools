@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp, boolean, date, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, timestamp, boolean, date, text, jsonb } from "drizzle-orm/pg-core";
 
 
 export const person = pgTable("person", {
@@ -11,6 +11,10 @@ export const person = pgTable("person", {
   isHidden: boolean("isHidden").notNull().default(false),
   birthDate: date("birthDate", { mode: "date" }),
   faceAssetId: uuid("faceAssetId"),
+  isFavorite: boolean("isFavorite").notNull().default(false),
+  color: varchar("color"),
+  updateId: uuid("updateId"),
 });
 
 export type Person = typeof person.$inferSelect;
+export type NewPerson = typeof person.$inferInsert;

@@ -1,8 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { person } from "@/schema";
-import { and, count, eq, ne, sql } from "drizzle-orm";
+import { and, count, eq, isNull, ne, sql } from "drizzle-orm";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(

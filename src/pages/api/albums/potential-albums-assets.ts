@@ -1,7 +1,7 @@
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
-import { isFlipped } from "@/helpers/asset.helper";
-import { sql } from "drizzle-orm";
+import { isFlipped, AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
+import { sql, isNull, and, eq, isNotNull } from "drizzle-orm";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const SELECT_ORPHAN_PHOTOS = (date: string, ownerId:  string) =>
@@ -36,6 +36,8 @@ const SELECT_ORPHAN_PHOTOS = (date: string, ownerId:  string) =>
       AND a."ownerId" = '${ownerId}'
       AND e."dateTimeOriginal"::date = '${date}'
       AND a."visibility" = 'timeline'
+      AND a."status" = 'active'
+      AND a."deletedAt" IS NULL
   ORDER BY
       e."dateTimeOriginal" DESC
 `);

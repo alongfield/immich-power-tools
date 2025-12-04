@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { assets, exif } from "@/schema";
 import { and, count, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -20,6 +21,9 @@ export default async function handler(
         .innerJoin(exif, eq(assets.id, exif.assetId))
         .where(and(
             eq(assets.ownerId, currentUser.id),
+            eq(assets.visibility, AssetVisibility.TIMELINE),
+            eq(assets.status, AssetStatus.ACTIVE),
+            isNull(assets.deletedAt),
             isNotNull(exif.latitude),
             isNotNull(exif.longitude)
         ));
@@ -32,6 +36,9 @@ export default async function handler(
         .leftJoin(exif, eq(assets.id, exif.assetId))
         .where(and(
             eq(assets.ownerId, currentUser.id),
+            eq(assets.visibility, AssetVisibility.TIMELINE),
+            eq(assets.status, AssetStatus.ACTIVE),
+            isNull(assets.deletedAt),
             sql`(${exif.latitude} IS NULL OR ${exif.longitude} IS NULL)`
         ));
 

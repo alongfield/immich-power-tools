@@ -4,10 +4,11 @@ import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { NextApiResponse } from "next";
 import { albums } from "@/schema/albums.schema";
-import { count, eq, min, max, sql, and } from "drizzle-orm";
+import { count, eq, min, max, sql, and, isNull } from "drizzle-orm";
 import { assets } from "@/schema/assets.schema";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
 import { assetFaces, exif, person } from "@/schema";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 
 export default async function handler(
   req: NextApiRequest,
@@ -33,7 +34,12 @@ export default async function handler(
     .from(albums)
     .leftJoin(albumsAssetsAssets, eq(albums.id, albumsAssetsAssets.albumsId))
     .leftJoin(assets, eq(albumsAssetsAssets.assetsId, assets.id))
-    .leftJoin(exif, and(eq(assets.id, exif.assetId), eq(assets.visibility, "timeline")))
+    .leftJoin(exif, and(
+      eq(assets.id, exif.assetId), 
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
+      isNull(assets.deletedAt)
+    ))
     .leftJoin(assetFaces, eq(assets.id, assetFaces.assetId))
     .leftJoin(person, and(eq(assetFaces.personId, person.id), eq(person.isHidden, false)))
     .where(and(eq(albums.ownerId, currentUser.id), eq(albums.id, id)))

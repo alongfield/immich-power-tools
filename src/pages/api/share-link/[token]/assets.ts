@@ -10,7 +10,7 @@ import { NextApiResponse } from "next";
 import { NextApiRequest } from "next";
 import { albums } from "@/schema/albums.schema";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
-import { cleanUpShareAsset, isFlipped } from "@/helpers/asset.helper";
+import { cleanUpShareAsset, isFlipped, AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { ShareLinkFilters } from "@/types/shareLink";
 
 interface IQuery extends ShareLinkFilters {
@@ -84,9 +84,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         albumIds?.length > 0 ? inArray(albums.id, albumIds) : undefined,
         startDate ? gte(assets.createdAt, new Date(startDate)) : undefined,
         endDate ? lte(assets.createdAt, new Date(endDate)) : undefined,
-        eq(assets.status, "active"),
-        eq(assets.visibility, "timeline"),
+        eq(assets.status, AssetStatus.ACTIVE),
+        eq(assets.visibility, AssetVisibility.TIMELINE),
         eq(assets.isOffline, false),
+        isNull(assets.deletedAt),
       ))
       .orderBy(desc(assets.localDateTime));
 

@@ -1,10 +1,11 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { assets, exif } from "@/schema";
 import { IExifColumns } from "@/schema/exif.schema";
 import { IUser } from "@/types/user";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const FIELDS: IExifColumns[] = [
@@ -33,6 +34,9 @@ const getFilters = async (currentUser: IUser) => {
       .where(
         and(
           eq(assets.ownerId, currentUser.id),
+          eq(assets.visibility, AssetVisibility.TIMELINE),
+          eq(assets.status, AssetStatus.ACTIVE),
+          isNull(assets.deletedAt),
         )
       )
     ).map((value) => value[field]).filter((value) => value !== null);

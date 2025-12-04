@@ -30,8 +30,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const resource = p === "true" ? "people" : "assets";
   const baseURL = `${ENV.IMMICH_URL}/api/${resource}/${id}`;
-  const version = size === "original" ? "original" : "thumbnail";
-  let targetUrl = `${baseURL}/${version}?size=${size}`;
+  
+  // Immich 2.3.0 uses 'preview' and 'thumbnail' sizes
+  // Map 'original' to use the original endpoint, otherwise use thumbnail with normalized size
+  let targetUrl: string;
+  if (size === "original") {
+    targetUrl = `${baseURL}/original`;
+  } else if (size === "video") {
+    targetUrl = `${baseURL}/video`;
+  } else {
+    const normalizedSize = size === "preview" ? "preview" : "thumbnail";
+    targetUrl = `${baseURL}/thumbnail?size=${normalizedSize}`;
+  }
 
   try {
     // Forward the request to the target API
@@ -43,8 +53,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error("Error fetching thumbnail " + error.message)
+      const errorText = await response.text();
+      console.error('Share thumbnail error:', response.status, errorText);
+      throw new Error("Error fetching thumbnail: " + errorText)
     }
 
     // Get the image data from the response

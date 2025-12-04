@@ -1,8 +1,9 @@
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { humanizeBytes } from "@/helpers/string.helper";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { assets, exif, users } from "@/schema";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { sum } from "drizzle-orm";
 import { NextApiResponse } from "next";
 
@@ -20,6 +21,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   .from(assets)
   .leftJoin(exif, eq(assets.id, exif.assetId))
   .leftJoin(users, eq(assets.ownerId, users.id))
+  .where(and(
+    eq(assets.visibility, AssetVisibility.TIMELINE),
+    eq(assets.status, AssetStatus.ACTIVE),
+    isNull(assets.deletedAt)
+  ))
   .orderBy(desc(sum(exif.fileSizeInByte)))
   .groupBy(assets.ownerId, users.name)
 

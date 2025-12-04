@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, integer, bigint, timestamp, doublePrecision, text } from 'drizzle-orm/pg-core';
-import { assets } from './assets.schema'; // Assuming you have an assets table defined
+import { assets } from './assets.schema';
 
 export const exif = pgTable('asset_exif', {
   assetId: uuid('assetId').primaryKey().notNull().references(() => assets.id, { onDelete: 'cascade' }),
@@ -31,6 +31,9 @@ export const exif = pgTable('asset_exif', {
   bitsPerSample: integer('bitsPerSample'),
   autoStackId: varchar('autoStackId'),
   rating: integer('rating'),
+  updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow(),
 });
 
-export type IExifColumns = keyof typeof exif.$inferSelect
+export type Exif = typeof exif.$inferSelect;
+export type NewExif = typeof exif.$inferInsert;
+export type IExifColumns = keyof typeof exif.$inferSelect;

@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { assetFaces, assets, exif, person } from "@/schema";
 import {
   and,
@@ -53,8 +54,9 @@ export default async function handler(
 
     const whereClause = and(
       isNull(assets.duplicateId),
-      eq(assets.visibility, "timeline"),
-      eq(assets.status, "active"),
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
+      isNull(assets.deletedAt),
       eq(assets.ownerId, currentUser.id),
       type === "all" ? undefined : (type === "nameless" ? eq(person.name, "") : ne(person.name, "")),
       query && query.length > 0 ? ilike(person.name, `%${query}%`) : undefined,

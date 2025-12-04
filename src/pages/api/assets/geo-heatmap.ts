@@ -4,8 +4,9 @@ import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { NextApiRequest } from "next";
 import { assetFaces, assets, exif, person } from "@/schema";
-import { and, eq, inArray, isNotNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const currentUser = await getCurrentUser(req);
@@ -27,6 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   .where(
     and(
       eq(assets.ownerId, currentUser.id),
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
+      isNull(assets.deletedAt),
       isNotNull(exif.latitude),
       isNotNull(exif.longitude),
       albumIds?.length > 0 ? inArray(albumsAssetsAssets.albumsId, [albumIds]) : undefined,

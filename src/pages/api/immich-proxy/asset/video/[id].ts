@@ -17,7 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   
   const { id } = req.query;
-  const targetUrl = `${ENV.IMMICH_URL}/api/assets/${id}/original`;
+  // Immich 2.3.0 uses /api/assets/{id}/video for video playback
+  // and /api/assets/{id}/original for downloading the original file
+  const targetUrl = `${ENV.IMMICH_URL}/api/assets/${id}/video`;
 
   const user = await getCurrentUser(req);
   if (!user) {
@@ -33,7 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     if (!response.ok) {
-      console.error('HTTP error:', response)
+      const errorBody = await response.text();
+      console.error('HTTP error:', response.status, errorBody);
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 

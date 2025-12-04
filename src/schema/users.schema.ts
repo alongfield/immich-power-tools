@@ -19,5 +19,11 @@ export const users = pgTable("user", {
     quotaUsageInBytes: bigint("quotaUsageInBytes", {
       mode: 'bigint'
     }).notNull(),
-    status: varchar("status").notNull().default('active'),
+    status: varchar("status").notNull().default('active'), // 'active' | 'removing' | 'deleted'
+    avatarColor: varchar("avatarColor"),
+    profileChangedAt: timestamp("profileChangedAt", { withTimezone: true }),
+    updateId: uuid("updateId"),
 });
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;

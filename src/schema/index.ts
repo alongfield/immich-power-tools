@@ -4,4 +4,8 @@ export { person } from './person.schema';
 export { assetFaces } from './assetFaces.schema';
 export { users } from './users.schema';
 export { albumsAssetsAssets } from './albumAssetsAssets.schema';
+export { faceSearch } from './faceSearch.schema';
+export { albums } from './albums.schema';
+export { assetFiles } from './assetFiles.schema';
+export * from './enums.schema';
 export * from './relationships';

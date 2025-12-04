@@ -1,7 +1,8 @@
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { assets, exif } from "@/schema";
-import { and, count, desc, eq, isNotNull, ne } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull, isNull, ne } from "drizzle-orm";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const columnMap = {
@@ -42,6 +43,9 @@ export default async function handler(
     .where(and(
       isNotNull(column),
       eq(assets.ownerId, currentUser.id),
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
+      isNull(assets.deletedAt),
     ))
     .limit(20)
     .groupBy(column).orderBy(desc(count()));

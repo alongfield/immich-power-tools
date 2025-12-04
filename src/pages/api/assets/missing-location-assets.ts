@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
-import { isFlipped } from "@/helpers/asset.helper";
+import { isFlipped, AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { parseDate } from "@/helpers/date.helper";
 import { assets, exif } from "@/schema";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
@@ -39,8 +39,8 @@ const getRowsByDates = async (startDateDate: Date, endDateDate: Date, currentUse
       gte(exif.dateTimeOriginal, startDateDate),
       lte(exif.dateTimeOriginal, endDateDate),
       eq(assets.ownerId, currentUser.id),
-      eq(assets.visibility, "timeline"),
-      eq(assets.status, "active"),
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
       isNull(assets.deletedAt),
     ));
 }
@@ -73,8 +73,8 @@ const getRowsByAlbums = async (currentUser: IUser, albumId: string) => {
       isNotNull(assets.createdAt),
       eq(assets.ownerId, currentUser.id),
       eq(albums.id, albumId),
-      eq(assets.visibility, "timeline"),
-      eq(assets.status, "active"),
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
       isNull(assets.deletedAt),
     ));
 }

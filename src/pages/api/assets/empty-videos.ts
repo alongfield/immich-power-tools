@@ -1,10 +1,10 @@
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { NextApiRequest, NextApiResponse } from "next";
-import { and, eq, isNotNull, sql, desc, asc } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, sql, desc, asc } from "drizzle-orm";
 import { assets } from "@/schema/assets.schema";
 import { exif } from "@/schema";
-import { isFlipped } from "@/helpers/asset.helper";
+import { isFlipped, AssetVisibility, AssetStatus, AssetType } from "@/helpers/asset.helper";
 import { ASSET_VIDEO_PATH } from "@/config/routes";
 
 
@@ -73,9 +73,10 @@ const dbAssets = await db
   .where(
     and(
       eq(assets.ownerId, currentUser.id),
-      eq(assets.type, "VIDEO"),
-      eq(assets.visibility, "timeline"),
-      eq(assets.status, "active"),
+      eq(assets.type, AssetType.VIDEO),
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
+      isNull(assets.deletedAt),
       isNotNull(assets.duration),
       maxDurationNum > 0 ? sql`${durationExpr} < ${maxDurationNum}` : undefined
     )

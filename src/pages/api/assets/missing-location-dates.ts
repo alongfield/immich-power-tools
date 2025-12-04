@@ -2,6 +2,7 @@ import { db } from "@/config/db";
 import { IMissingLocationDatesResponse } from "@/handlers/api/asset.handler";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { parseDate } from "@/helpers/date.helper";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { assets, exif } from "@/schema";
 import { and, count, desc, eq, isNotNull, isNull, ne, sql } from "drizzle-orm";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -31,8 +32,8 @@ export default async function handler(
         isNotNull(assets.createdAt),
         isNotNull(exif.dateTimeOriginal),
         eq(assets.ownerId, currentUser.id),
-        eq(assets.visibility, "timeline"),
-        eq(assets.status, "active"),
+        eq(assets.visibility, AssetVisibility.TIMELINE),
+        eq(assets.status, AssetStatus.ACTIVE),
         isNull(assets.deletedAt),
       ))
       .groupBy(sql`DATE(${exif.dateTimeOriginal})`)

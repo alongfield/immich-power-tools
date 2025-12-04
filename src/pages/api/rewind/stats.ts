@@ -10,6 +10,7 @@ import { exif, person, users } from "@/schema";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { albums } from "@/schema/albums.schema";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
@@ -26,8 +27,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const numberOfPhotos = await db.select({ count: count(assets.id) }).from(assets).where(and( 
     eq(assets.ownerId, user.id),
-    eq(assets.visibility, "timeline"),
-    eq(assets.status, "active"),
+    eq(assets.visibility, AssetVisibility.TIMELINE),
+    eq(assets.status, AssetStatus.ACTIVE),
+    isNull(assets.deletedAt),
   ));
 
   // Get list of countries visited in the year
@@ -38,8 +40,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   .where(and(
     eq(sql`EXTRACT(YEAR FROM ${exif.dateTimeOriginal})`, year),
     eq(assets.ownerId, user.id),
-    eq(assets.visibility, "timeline"),
-    eq(assets.status, "active"),
+    eq(assets.visibility, AssetVisibility.TIMELINE),
+    eq(assets.status, AssetStatus.ACTIVE),
+    isNull(assets.deletedAt),
   ))
   .groupBy(exif.country);
 
@@ -52,8 +55,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   .where(and(
     eq(sql`EXTRACT(YEAR FROM ${exif.dateTimeOriginal})`, year),
     eq(assets.ownerId, user.id),
-    eq(assets.visibility, "timeline"),
-    eq(assets.status, "active"),
+    eq(assets.visibility, AssetVisibility.TIMELINE),
+    eq(assets.status, AssetStatus.ACTIVE),
+    isNull(assets.deletedAt),
   ))
   .groupBy(exif.city);
 
@@ -72,8 +76,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   .where(and(
     eq(sql`EXTRACT(YEAR FROM ${exif.dateTimeOriginal})`, year),
     eq(assets.ownerId, user.id),
-    eq(assets.visibility, "timeline"),
-    eq(assets.status, "active"),
+    eq(assets.visibility, AssetVisibility.TIMELINE),
+    eq(assets.status, AssetStatus.ACTIVE),
+    isNull(assets.deletedAt),
   ))
   .orderBy(desc(count(assets.id)))
   .limit(4)
@@ -93,8 +98,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   .where(and(
     eq(sql`EXTRACT(YEAR FROM ${exif.dateTimeOriginal})`, year),
     eq(assets.ownerId, user.id),
-    eq(assets.visibility, "timeline"),
-    eq(assets.status, "active"),
+    eq(assets.visibility, AssetVisibility.TIMELINE),
+    eq(assets.status, AssetStatus.ACTIVE),
+    isNull(assets.deletedAt),
     isNotNull(person.name),
   ))
   .orderBy(desc(count(assets.id)))
@@ -106,9 +112,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   .from(assets)
   .leftJoin(exif, eq(exif.assetId, assets.id))
   .where(and(
-    eq(assets.visibility, "timeline"),
+    eq(assets.visibility, AssetVisibility.TIMELINE),
     eq(assets.isFavorite, true),
-    eq(assets.status, "active"),
+    eq(assets.status, AssetStatus.ACTIVE),
+    isNull(assets.deletedAt),
     eq(assets.ownerId, user.id),
     eq(sql`EXTRACT(YEAR FROM ${exif.dateTimeOriginal})`, year),
   ))

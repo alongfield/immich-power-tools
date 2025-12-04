@@ -4,11 +4,12 @@ import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { NextApiResponse } from "next";
 import { albums } from "@/schema/albums.schema";
-import { count, desc, eq, min, max, sql, and, sum, isNotNull } from "drizzle-orm";
+import { count, desc, eq, min, max, sql, and, sum, isNotNull, isNull } from "drizzle-orm";
 import { assets } from "@/schema/assets.schema";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
 import { assetFaces, exif, person } from "@/schema";
 import { IAlbum } from "@/types/album";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 
 const getTime = (date: Date) => {
   return date ? date.getTime() : 0;
@@ -72,8 +73,9 @@ export default async function handler(
     .leftJoin(albumsAssetsAssets, eq(albums.id, albumsAssetsAssets.albumsId))
     .leftJoin(assets, and(
       eq(albumsAssetsAssets.assetsId, assets.id),
-      eq(assets.visibility, "timeline"),
-      eq(assets.status, "active"),
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
+      isNull(assets.deletedAt),
     ))
     .leftJoin(exif, eq(assets.id, exif.assetId))
     .leftJoin(assetFaces, eq(assets.id, assetFaces.assetId))

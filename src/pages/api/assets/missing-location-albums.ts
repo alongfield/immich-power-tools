@@ -1,6 +1,7 @@
 import { db } from "@/config/db";
 import { IMissingLocationDatesResponse } from "@/handlers/api/asset.handler";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { assets, exif } from "@/schema";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
 import { albums } from "@/schema/albums.schema";
@@ -35,7 +36,9 @@ export default async function handler(
           isNotNull(assets.createdAt),
           isNotNull(exif.dateTimeOriginal),
           eq(assets.ownerId, currentUser.id),
-          eq(assets.visibility, "timeline"),
+          eq(assets.visibility, AssetVisibility.TIMELINE),
+          eq(assets.status, AssetStatus.ACTIVE),
+          isNull(assets.deletedAt),
           isNotNull(albums.id)
       ))
       .groupBy(albums.id)

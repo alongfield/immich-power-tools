@@ -17,7 +17,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   
   const { id, size } = req.query;
-  const targetUrl = `${ENV.IMMICH_URL}/api/assets/${id}/thumbnail?size=${size || 'thumbnail'}`;
+  // Immich 2.3.0 uses 'preview' and 'thumbnail' sizes
+  // Map any legacy size values to the new format
+  const normalizedSize = size === 'original' ? 'preview' : (size || 'thumbnail');
+  const targetUrl = `${ENV.IMMICH_URL}/api/assets/${id}/thumbnail?size=${normalizedSize}`;
 
   const user = await getCurrentUser(req);
   if (!user) {
@@ -33,7 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     if (!response.ok) {
-      console.error('HTTP error:', response)
+      const errorBody = await response.text();
+      console.error('HTTP error:', response.status, errorBody);
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 

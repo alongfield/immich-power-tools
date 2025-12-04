@@ -3,6 +3,7 @@ import { db } from "@/config/db";
 import { IPotentialAlbumsDatesResponse } from "@/handlers/api/album.handler";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { parseDate } from "@/helpers/date.helper";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
 import { assets } from "@/schema/assets.schema";
 import { exif } from "@/schema/exif.schema";
@@ -25,7 +26,9 @@ export default async function handler(
       .leftJoin(exif, eq(assets.id, exif.assetId))
       .where(and  (
         eq(assets.ownerId, currentUser.id),
-        eq(assets.visibility, "timeline"),
+        eq(assets.visibility, AssetVisibility.TIMELINE),
+        eq(assets.status, AssetStatus.ACTIVE),
+        isNull(assets.deletedAt),
         isNull(albumsAssetsAssets.albumsId),
         isNotNull(exif.dateTimeOriginal),
 

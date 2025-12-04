@@ -10,5 +10,9 @@ export const albums = pgTable('album', {
     description: text('description').notNull().default(''),
     deletedAt: timestamp('deletedAt', { withTimezone: true }),
     isActivityEnabled: boolean('isActivityEnabled').notNull().default(true),
-    order: varchar('order').notNull().default('desc'),
+    order: varchar('order').notNull().default('desc'), // 'asc' | 'desc'
+    updateId: uuid('updateId'),
 });
+
+export type Album = typeof albums.$inferSelect;
+export type NewAlbum = typeof albums.$inferInsert;

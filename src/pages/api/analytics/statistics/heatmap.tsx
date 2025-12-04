@@ -1,8 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
+import { AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { assets, exif } from "@/schema";
-import { and, count, desc, eq, gte, isNotNull, ne, sql, } from "drizzle-orm";
+import { and, count, desc, eq, gte, isNotNull, isNull, ne, sql, } from "drizzle-orm";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 // Helper function to format date as YYYY-MM-DD
@@ -55,6 +56,9 @@ export default async function handler(
             .where(
                 and(
                     eq(assets.ownerId, currentUser.id),
+                    eq(assets.visibility, AssetVisibility.TIMELINE),
+                    eq(assets.status, AssetStatus.ACTIVE),
+                    isNull(assets.deletedAt),
                     gte(assets.fileCreatedAt, sql`CURRENT_DATE - INTERVAL '1 YEAR'`))
             )
             .groupBy(sql`DATE(${assets.fileCreatedAt})`)

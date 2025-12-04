@@ -3,11 +3,11 @@ import { NextApiRequest } from "next";
 import { db } from "@/config/db";
 import { getCurrentUser } from "@/handlers/serverUtils/user.utils";
 import { NextApiResponse } from "next";
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import { assets } from "@/schema/assets.schema";
 import { albumsAssetsAssets } from "@/schema/albumAssetsAssets.schema";
 import { assetFaces, exif, person } from "@/schema";
-import { isFlipped } from "@/helpers/asset.helper";
+import { isFlipped, AssetVisibility, AssetStatus } from "@/helpers/asset.helper";
 import { ASSET_VIDEO_PATH } from "@/config/routes";
 
 export default async function handler(
@@ -52,8 +52,9 @@ export default async function handler(
     .leftJoin(person, eq(assetFaces.personId, person.id))
     .where(and(
       eq(albumsAssetsAssets.albumsId, id), 
-      eq(assets.visibility, "timeline"),
-      eq(assets.status, "active"),
+      eq(assets.visibility, AssetVisibility.TIMELINE),
+      eq(assets.status, AssetStatus.ACTIVE),
+      isNull(assets.deletedAt),
       faceId ? eq(assetFaces.personId, faceId) : undefined,
     ))
     .orderBy(desc(assets.id), desc(assets.localDateTime))
