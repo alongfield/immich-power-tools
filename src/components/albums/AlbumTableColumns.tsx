@@ -46,6 +46,13 @@ export const albumColumns: ColumnDef<IAlbum>[] = [
     header: "Thumbnail",
     cell: ({ row }) => {
       const album = row.original
+      if (!album.albumThumbnailAssetId) {
+        return (
+          <div className="w-16 h-16 rounded-md overflow-hidden bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-400 text-xs">No image</span>
+          </div>
+        )
+      }
       return (
         <div className="w-16 h-16 rounded-md overflow-hidden">
           <LazyImage

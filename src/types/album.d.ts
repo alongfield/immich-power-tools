@@ -1,7 +1,7 @@
 export interface IAlbum {
   albumName:                  string;
   description:                string;
-  albumThumbnailAssetId:      string;
+  albumThumbnailAssetId:      string | null;
   createdAt:                  Date;
   updatedAt:                  Date;
   id:                         string;

@@ -29,16 +29,25 @@ export default function AlbumThumbnail({ album, onSelect, selected }: IAlbumThum
   return (
     <div className="border rounded-lg overflow-hidden shadow-lg relative group">
       <label className="block relative ">
-        <LazyImage
-          src={ASSET_THUMBNAIL_PATH(album.albumThumbnailAssetId)}
-          alt={album.albumName}
-          title={album.albumName}
-          style={{
-            width: '100%',
-            height: '200px',
-            objectFit: 'cover',
-          }}
-        />
+        {album.albumThumbnailAssetId ? (
+          <LazyImage
+            src={ASSET_THUMBNAIL_PATH(album.albumThumbnailAssetId)}
+            alt={album.albumName}
+            title={album.albumName}
+            style={{
+              width: '100%',
+              height: '200px',
+              objectFit: 'cover',
+            }}
+          />
+        ) : (
+          <div 
+            className="bg-gray-200 flex items-center justify-center"
+            style={{ width: '100%', height: '200px' }}
+          >
+            <span className="text-gray-400 text-sm">No thumbnail</span>
+          </div>
+        )}
         <div className="absolute bottom-0 w-full bg-gray-800/70 text-white text-center text-xs font-bold py-1 group-hover:hidden">
           {album.firstPhotoDate ? formatDate(album.firstPhotoDate?.toString(), 'MMM d, yyyy') : ''} - {album.lastPhotoDate ? formatDate(album.lastPhotoDate?.toString(), 'MMM d, yyyy') : ''}
         </div>

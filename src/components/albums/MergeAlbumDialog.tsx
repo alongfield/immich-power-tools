@@ -61,7 +61,7 @@ export default function MergeAlbumDialog({ onMerge }: IProps) {
           Merge Albums
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] flex flex-col">
       <DialogHeader>
           <DialogTitle>Merge Albums</DialogTitle>
         </DialogHeader>
@@ -70,7 +70,7 @@ export default function MergeAlbumDialog({ onMerge }: IProps) {
           <p className='text-sm font-medium'>Choose the primary album</p>
         </div>
         {/* Choose the primary album */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 py-4 overflow-y-auto flex-1 min-h-0">
         {selectedAlbums.map((album) => (
           <AlbumThumbnail
             album={album}

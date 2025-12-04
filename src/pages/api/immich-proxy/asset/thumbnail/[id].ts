@@ -17,6 +17,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   
   const { id, size } = req.query;
+  
+  // Validate that id is a valid UUID
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!id || typeof id !== 'string' || !uuidRegex.test(id)) {
+    return res.status(400).json({ message: 'Invalid asset ID' })
+  }
+  
   // Immich 2.3.0 uses 'preview' and 'thumbnail' sizes
   // Map any legacy size values to the new format
   const normalizedSize = size === 'original' ? 'preview' : (size || 'thumbnail');
