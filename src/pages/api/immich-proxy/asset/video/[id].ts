@@ -17,9 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   
   const { id } = req.query;
-  // Immich 2.3.0 uses /api/assets/{id}/video for video playback
-  // and /api/assets/{id}/original for downloading the original file
-  const targetUrl = `${ENV.IMMICH_URL}/api/assets/${id}/video`;
+  // Immich uses /api/assets/{id}/video/playback for video streaming
+  const targetUrl = `${ENV.IMMICH_URL}/api/assets/${id}/video/playback`;
 
   const user = await getCurrentUser(req);
   if (!user) {

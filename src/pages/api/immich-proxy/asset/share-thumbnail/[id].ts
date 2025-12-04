@@ -31,13 +31,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const resource = p === "true" ? "people" : "assets";
   const baseURL = `${ENV.IMMICH_URL}/api/${resource}/${id}`;
   
-  // Immich 2.3.0 uses 'preview' and 'thumbnail' sizes
-  // Map 'original' to use the original endpoint, otherwise use thumbnail with normalized size
+  // Immich uses 'preview' and 'thumbnail' sizes for thumbnails
+  // and /video/playback for video streaming
   let targetUrl: string;
   if (size === "original") {
     targetUrl = `${baseURL}/original`;
   } else if (size === "video") {
-    targetUrl = `${baseURL}/video`;
+    targetUrl = `${baseURL}/video/playback`;
   } else {
     const normalizedSize = size === "preview" ? "preview" : "thumbnail";
     targetUrl = `${baseURL}/thumbnail?size=${normalizedSize}`;
