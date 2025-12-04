@@ -20,6 +20,7 @@ export const getCurrentUserFromAPIKey = () => {
         return {
           ...user,
           isUsingAPIKey: true,
+          apiKey: ENV.IMMICH_API_KEY,
         }
       })
     }

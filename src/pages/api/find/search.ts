@@ -16,6 +16,16 @@ export default async function search(
   try {
     const { query } = req.body;
     const currentUser = await getCurrentUser(req);
+    
+    if (!currentUser) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Build auth headers based on whether using API key or access token
+    const authHeaders: Record<string, string> = currentUser.isUsingAPIKey
+      ? { 'x-api-key': currentUser.apiKey }
+      : { 'Authorization': `Bearer ${currentUser.accessToken}` };
+
     const parsedQuery = await parseFindQuery(query as string);
     const { personIds } = parsedQuery;
 
@@ -34,7 +44,7 @@ export default async function search(
       body: JSON.stringify({ ...parsedQuery, withExif: true }),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${currentUser?.accessToken}`,
+        ...authHeaders,
       },
     })
       .then((response) => {

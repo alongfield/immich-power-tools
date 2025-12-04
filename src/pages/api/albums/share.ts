@@ -11,7 +11,7 @@ interface IAlbumShare {
   showMetadata: boolean;
 }
 
-const generateShareLink = async (album: IAlbumShare, token: string) => {
+const generateShareLink = async (album: IAlbumShare, authHeaders: Record<string, string>) => {
   const url = ENV.IMMICH_URL + "/api/shared-links";
   return fetch(url, {
     method: 'POST',
@@ -24,7 +24,7 @@ const generateShareLink = async (album: IAlbumShare, token: string) => {
     }),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      ...authHeaders
     }
   }).then(async (response) => {
     if (response.status >= 400) {
@@ -49,13 +49,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
+  // Build auth headers based on whether using API key or access token
+  const authHeaders: Record<string, string> = currentUser.isUsingAPIKey
+    ? { 'x-api-key': currentUser.apiKey }
+    : { 'Authorization': `Bearer ${currentUser.accessToken}` };
+
   const { albums } = req.body as { albums: IAlbumShare[] };
   if (!albums) {  
     return res.status(400).json({ error: 'albums is required' });
   }
 
   const shareLinks = await Promise.all(albums.map(async (album) => {
-    return generateShareLink(album, currentUser.accessToken);
+    return generateShareLink(album, authHeaders);
   }));
   return res.status(200).json(shareLinks);
 }

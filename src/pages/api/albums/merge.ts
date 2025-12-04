@@ -16,6 +16,12 @@ export default async function handler(
   if (!currentUser) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+
+  // Build auth headers based on whether using API key or access token
+  const authHeaders: Record<string, string> = currentUser.isUsingAPIKey
+    ? { 'x-api-key': currentUser.apiKey }
+    : { 'Authorization': `Bearer ${currentUser.accessToken}` };
+
   const { primaryAlbumId, secondaryAlbumIds } = req.body as {
     primaryAlbumId: string;
     secondaryAlbumIds: string[];
@@ -75,7 +81,7 @@ export default async function handler(
     body: JSON.stringify({ ids: secondaryAlbumAssetsIds }),
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${currentUser.accessToken}`
+      ...authHeaders
     }
   });
   
@@ -88,9 +94,7 @@ export default async function handler(
     const deleteAlbumURL = `${ENV.IMMICH_URL}/api/albums/${album.id}`;
     return fetch(deleteAlbumURL, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${currentUser.accessToken}`
-      }
+      headers: authHeaders
     });
   });  
 
